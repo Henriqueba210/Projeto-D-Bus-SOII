@@ -13,20 +13,12 @@ def get_song_details():
         metadados = propriedadesSpotify.Get("org.mpris.MediaPlayer2.Player", "Metadata")
 
         artista = metadados['xesam:artist']
-        artista = str(artista[0]).lower()
-        artista = artista.replace(" ", "")
+        artista = str(artista[0])
 
-        tituloMusica = str(metadados['xesam:title']).lower()
-        tituloMusica = tituloMusica.replace(" ", "")
+        tituloMusica = str(metadados['xesam:title'])
 
         song_art = metadados['mpris:artUrl']
         song_art = str(song_art)
-
-        tituloMusica = re.sub("[\(\[].*?[\)\]]", "", tituloMusica)
-        tituloMusica = re.sub('[^A-Za-z0-9]+', '', tituloMusica)
-
-        artista = re.sub("[\(\[].*?[\)\]]", "", artista)
-        artista = re.sub('[^A-Za-z0-9]+', '', artista)
 
         print(tituloMusica)
         print(artista)
