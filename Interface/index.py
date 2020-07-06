@@ -11,20 +11,46 @@ from tkinter.simpledialog import askstring
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-class App(threading.Thread):
+
+class interfaceApp:
+    def encerrar_app(self, usuarioEncerrando):
+        if usuarioEncerrando == nomeUsuario:
+            self.loopMain.quit()
 
     def __init__(self):
+        self.app = App(interfaceApp= self)
+        self.nomeUsuario = ""
+        self.loopDbus = DBusGMainLoop(set_as_default=True)
+        self.loopMain = GLib.MainLoop()
+        self.bus = dbus.SystemBus(mainloop=self.loopDbus)
+        try:
+            self.objServidor = self.bus.get_object('com.bus.DBusServer', '/bus/com/DBusServer')
+            self.bus.add_signal_receiver(self.app.ReceivedMensagem, dbus_interface='com.bus.DBusServer.event',
+                                         signal_name='mensagem_recebida')
+            self.bus.add_signal_receiver(self.encerrar_app,
+                                         dbus_interface='com.bus.DBusServer.event',
+                                         signal_name='encerrar_app')
+            self.loopMain.run()
+        except dbus.exceptions.DBusException:
+            print("Servidor de mensagens não está rodando")
+            self.app.callback()
+
+
+class App(threading.Thread, interfaceApp):
+
+    def __init__(self, interfaceApp):
+        self.interfaceApp = interfaceApp
         threading.Thread.__init__(self)
         self.start()
 
     def callback(self):
         self.root.destroy()
         try:
-            print(objServidor.remover_usuario(nomeUsuario))
-            objServidor.encerrar_app(nomeUsuario)
+            print(self.interfaceApp.objServidor.remover_usuario(nomeUsuario))
+            self.interfaceApp.objServidor.encerrar_app(nomeUsuario)
         except:
             print("Não foi possível comunicar com o servidor")
-            loopMain.quit()
+            self.interfaceApp.loopMain.quit()
 
     def AddMensagemBotao(self):
         a = tk.Label(self.scrollable_body, text=self.processText(f"{nomeUsuario}:\n{self.entry1.get()}"),
@@ -33,7 +59,7 @@ class App(threading.Thread):
         a.pack(fill=tk.X, expand=True)
         self.scrollable_body.update()
         self.root.update()
-        objServidor.adicionar_mensagem(nomeUsuario, self.entry1.get())
+        self.interfaceApp.objServidor.adicionar_mensagem(nomeUsuario, self.entry1.get())
         self.entry1.delete(0, tkinter.END)
 
     def AddMensagem(self, mensagem):
@@ -43,7 +69,6 @@ class App(threading.Thread):
         a.pack(fill=tk.X, expand=True)
         self.scrollable_body.update()
         self.root.update()
-        objServidor.adicionar_mensagem(nomeUsuario, self.entry1.get())
 
     def ReceivedMensagem(self, mensagem):
         if mensagem[0] != nomeUsuario:
@@ -57,6 +82,24 @@ class App(threading.Thread):
     def processText(self, texto):
         return '\n'.join(texto[i:i + 35] for i in range(0, len(texto), 35))
 
+    def configure_app(self):
+        global nomeUsuario
+        self.root.withdraw()
+        retorno = 'Insira seu nome'
+        while retorno != "Usuário adicionado na conversa":
+            nomeUsuario = askstring(retorno, 'Insira seu nome', initialvalue='')
+            retorno = self.interfaceApp.objServidor.adicionar_usuario(nomeUsuario)
+
+        mensagensAnteriories = self.interfaceApp.objServidor.retornarMensagens()
+        if mensagensAnteriories != 'Lista vazia':
+            for value in mensagensAnteriories:
+                if value[0] == nomeUsuario:
+                    self.AddMensagem(value[1])
+                else:
+                    self.ReceivedMensagem([value[0], value[1]])
+
+        self.root.iconify()
+        return retorno
     def run(self):
         self.root = tk.Tk()
         self.root.protocol("WM_DELETE_WINDOW", self.callback)
@@ -86,51 +129,7 @@ class App(threading.Thread):
             font=('helvetica', 9, 'bold')
         )
         self.button1.pack(side='right', padx=15)
-        configure_app()
+        self.configure_app()
         self.root.title("Trava Zap")
         self.root.resizable(0, 0)
         self.root.mainloop()
-
-
-def configure_app():
-    global nomeUsuario
-    app.root.withdraw()
-    retorno = 'Insira seu nome'
-    while retorno != "Usuário adicionado na conversa":
-        nomeUsuario = askstring(retorno, 'Insira seu nome', initialvalue='')
-        retorno = objServidor.adicionar_usuario(nomeUsuario)
-
-    mensagensAnteriories = objServidor.retornarMensagens()
-    if mensagensAnteriories != 'Lista vazia':
-        for value in mensagensAnteriories:
-            if value[0] == nomeUsuario:
-                app.AddMensagem(value[1])
-            else:
-                app.ReceivedMensagem([value[0], value[1]])
-
-    app.root.iconify()
-    return retorno
-
-
-def encerrar_app(usuarioEncerrando):
-    if usuarioEncerrando == nomeUsuario:
-        loopMain.quit()
-
-
-app = App()
-nomeUsuario = ""
-loopDbus = DBusGMainLoop(set_as_default=True)
-loopMain = GLib.MainLoop()
-bus = dbus.SessionBus(mainloop=loopDbus)
-objServidor = None
-try:
-    objServidor = bus.get_object('com.bus.DBusServer', '/bus/com/DBusServer')
-    bus.add_signal_receiver(app.ReceivedMensagem, dbus_interface='com.bus.DBusServer.event',
-                            signal_name='mensagem_recebida')
-    bus.add_signal_receiver(encerrar_app,
-                            dbus_interface='com.bus.DBusServer.event',
-                            signal_name='encerrar_app')
-    loopMain.run()
-except dbus.exceptions.DBusException:
-    print("Servidor de mensagens não está rodando")
-    app.callback()
