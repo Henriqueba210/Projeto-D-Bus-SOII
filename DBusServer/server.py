@@ -1,67 +1,99 @@
 from gi.repository import GLib
 import dbus
 import dbus.service
-from dbus.mainloop import NativeMainLoop
 from dbus.mainloop.glib import DBusGMainLoop
 
+from DBusServer.emissor import Emissor
 
-class Test(dbus.service.Object):
+
+class DBusServer(dbus.service.Object):
+    listaUsuarios = []
     listaMensagens = []
-    loop = None
+    loopDBus = None
 
     def __init__(self, bus_name, object_path):
         dbus.service.Object.__init__(self, bus_name, object_path)
+        self.loop = loopDBus
 
-    @dbus.service.method('tld.domain.sub.TestInterface')
-    def foo(self):
-        return 'Foo'
+    @dbus.service.method('com.bus.DBusServer.Interface')
+    def adicionar_usuario(self, nome_usuario):
+        if nome_usuario not in self.listaUsuarios:
+            self.listaUsuarios.append(nome_usuario)
+            return "Usuário adicionado na conversa"
+        else:
+            return f'{nome_usuario} já foi adicionado na conversa'
 
-    # Stop the main loop
-    @dbus.service.method('tld.domain.sub.TestInterface')
+    @dbus.service.method('com.bus.DBusServer.Interface')
+    def remover_usuario(self, nome_usuario):
+        if nome_usuario in self.listaUsuarios:
+            self.listaUsuarios.remove(nome_usuario)
+            return "Usuário saiu da conversa"
+        else:
+            return f'{nome_usuario} não foi entrou na conversa'
+
+    @dbus.service.method('com.bus.DBusServer.Interface')
+    def adicionar_mensagem(self, nome_usuario, mensagem):
+        self.listaMensagens.append([nome_usuario, mensagem])
+        emissor.mensagem_recebida([nome_usuario,mensagem])
+        return "Mensagem adicionada a conversa"
+
+    @dbus.service.method('com.bus.DBusServer.Interface')
+    def encerrar_app(self, nome_usuario):
+        emissor.encerrar_app(nome_usuario)
+        return "Sinal para enverrar app enviado"
+
+    @dbus.service.method('com.bus.DBusServer.Interface')
+    def retornarMensagens(self):
+        if len(self.listaMensagens) != 0:
+            return self.listaMensagens
+        else:
+            return 'Lista vazia'
+
+    # Parar o loop princial
+    @dbus.service.method('com.bus.DBusServer.Interface')
     def stop(self):
         self.loop.quit()
+        emissor.quit_signal()
         return 'Quit loop'
 
-
-def catchall_handler(*args, **kwargs):
-    """Catch all handler.
-    Catch and print information about all singals.
-    """
-    print('---- Caught signal ----')
-    print('%s:%s\n' % (kwargs['dbus_interface'], kwargs['member']))
-
-    print('Arguments:')
-    for arg in args:
-        print('* %s' % str(arg))
-
-    print("\n")
+    # mandar uma exceção pelo DBus
+    @dbus.service.method('com.bus.DBusServer.Interface')
+    def fail(self):
+        """Mandar uma exceção"""
+        raise Exception('Erro!')
 
 
 def quit_handler():
-    """Signal handler for quitting the receiver."""
     print('Quitting....')
-    loop.quit()
+    loopMain.quit()
 
 
-loop: NativeMainLoop = DBusGMainLoop(set_as_default=True)
-bus = dbus.SessionBus(mainloop=loop)
-bus_name = dbus.service.BusName('com.bus.busao', bus=bus)
+"""
+ Primeiramente é necessário selecionamos em qual bus iremos rodar,
+ podendo ser o session bus que é único para cada usuário,
+ usado normalmente para as aplicações abertas se comunicarem ou o system bus que é 
+ usado para passar informações por todo o sistema, para utilizá-lo é
+ necessário ter permissão de root
+"""
+loopDBus = DBusGMainLoop(set_as_default=True)
+loopMain = GLib.MainLoop()
+bus = dbus.SessionBus(mainloop=loopDBus)
+bus_name = dbus.service.BusName('com.bus.DBusServer', bus=bus)
 
 """
-We initialize our service object with our name and object path. Object
-path should be in form of a reverse domain dame, delimited by / instead of .
-and the Class name as last part.
-The object path we set here is of importance for our invoker, since it will to
-call it exactly as defined here.
+ Aqui inicializamos o objeto do nosso objeto de serviço com o nosso nome e o caminho do objeto.
+ O caminho deve ser formado na forma de um domínio reverso separado por / com o nome da 
+ classe no final, ele é importante pois o cliente usará o caminho definido aqui para chamá-lo
 """
-obj = Test(bus_name, '/com/bus/busao')
+obj = DBusServer(bus_name, '/bus/com/DBusServer')
 
 """
-Attach signal handler.
-Signal handlers may be attached in different ways, either by interface keyword
-or DBUS interface and a signal name or member keyword.
-You can easily gather all information by running the DBUS monitor.
+Aqui adicionamos um handler de sinais que ira executar assim que o metodo selecionado emita
+um sinal no DBus, sendo possivel escutar a todos os sinais emitidos no DBus ou apenas um especifico.
 """
-bus.add_signal_receiver(catchall_handler, interface_keyword='dbus_interface', member_keyword='member')
-bus.add_signal_receiver(quit_handler, dbus_interface='tld.domain.sub.event', signal_name='quit_signal')
-GLib.MainLoop().run()
+bus.add_signal_receiver(quit_handler,
+                        dbus_interface='com.bus.DBusServer',
+                        signal_name='encerrar_servidor')
+
+emissor = Emissor(bus_name, '/bus/com/DBusServer/event')
+loopMain.run()
