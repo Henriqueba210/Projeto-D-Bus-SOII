@@ -2,6 +2,7 @@ from gi.repository import GLib
 import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
+import pkg_resources.py2_warn
 
 from DBusServer.emissor import Emissor
 

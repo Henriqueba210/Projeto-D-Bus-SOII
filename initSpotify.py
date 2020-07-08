@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 
-from DBusServer.server import StartServer
+from DBusServer.exemploSpotifyDbus import spotifyDbus
 
 if __name__ == '__main__':
-    StartServer()
+    spotifyDbus()

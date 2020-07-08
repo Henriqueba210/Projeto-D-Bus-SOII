@@ -12,7 +12,7 @@ from tkinter.simpledialog import askstring
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class interfaceApp:
+class initInterfaceApp:
     def encerrar_app(self, usuarioEncerrando):
         if usuarioEncerrando == nomeUsuario:
             self.loopMain.quit()
@@ -36,7 +36,7 @@ class interfaceApp:
             self.app.callback()
 
 
-class App(threading.Thread, interfaceApp):
+class App(threading.Thread, initInterfaceApp):
 
     def __init__(self, interfaceApp):
         self.interfaceApp = interfaceApp
@@ -106,7 +106,7 @@ class App(threading.Thread, interfaceApp):
         self.body = tk.Frame(self.root)
         self.body.pack(fill=tk.X)
 
-        self.img = Image.open(f"{ROOT_DIR}/imagem/bg.jpg")
+        self.img = Image.open("bg.jpg")
         self.imgTK = ImageTk.PhotoImage(self.img)
 
         self.canvas = tk.Canvas(self.root, height=500)
