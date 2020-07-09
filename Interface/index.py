@@ -5,7 +5,7 @@ import dbus
 from _dbus_glib_bindings import DBusGMainLoop
 from gi.repository import GLib
 from Interface.scrollable import Scrollable
-from PIL import Image, ImageTk
+from PIL import ImageTk
 import os
 from tkinter.simpledialog import askstring
 
@@ -106,11 +106,10 @@ class App(threading.Thread, initInterfaceApp):
         self.body = tk.Frame(self.root)
         self.body.pack(fill=tk.X)
 
-        self.img = Image.open("bg.jpg")
-        self.imgTK = ImageTk.PhotoImage(self.img)
+        # self.imgTK = ImageTk.PhotoImage(file="bg.png")
 
         self.canvas = tk.Canvas(self.root, height=500)
-        self.canvas.create_image(0, 0, anchor="nw", image=self.imgTK)
+        # self.canvas.create_image(0, 0, anchor="nw", image=self.imgTK)
 
         self.canvas.pack()
 

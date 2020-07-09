@@ -87,8 +87,8 @@ class StartServer():
         self.obj = DBusServer(self.bus_name, '/bus/com/DBusServer', loopDBus=self.loopDBus)
 
         """
-        Aqui adicionamos um handler de sinais que ira executar assim que o metodo selecionado emita
-        um sinal no DBus, sendo possivel escutar a todos os sinais emitidos no DBus ou apenas um especifico.
+        Aqui adicionamos um handler de sinais que ira executar assim que o método selecionado emita
+        um sinal no DBus, sendo possível escutar a todos os sinais emitidos no DBus ou apenas um especifico.
         """
         self.bus.add_signal_receiver(self.quit_handler,
                                 dbus_interface='com.bus.DBusServer',
@@ -97,5 +97,5 @@ class StartServer():
         self.loopMain.run()
 
     def quit_handler(self):
-        print('Quitting....')
+        print('Encerrando o servidor....')
         self.loopMain.quit()
