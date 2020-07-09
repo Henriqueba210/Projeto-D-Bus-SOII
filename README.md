@@ -1,12 +1,12 @@
 # Projeto-D-Bus-SOII
-Este projeto foi feito com o intuito de criar um exemplo de funcionamento de um aplicativo utilizando o D-Bus para  a aula de Sistemas Operacionais II da faculdade Fatec de Americana lecionada pelo professor Rossano Pablo Pinto.
+Este projeto foi feito com o intuito de criar um exemplo de funcionamento de um aplicativo utilizando o D-Bus para  a aula de Sistemas Operacionais II da faculdade Fatec de Americana lecionada pelo Professor Rossano Pablo Pinto.
 <br>O primeiro exemplo criado pelo nosso grupo foi um aplicativo de console que utiliza a implementação da Interface MPRIS D-Bus, cujo objetivo é padronizar a implementação de uma interface de comunicação pelo D-Bus para aplicativos de reprodução de música.
 <br><br>Nosso segundo exemplo é um aplicativo que possibilita que usuários que estão conectados em uma mesma máquina, consigam mandar mensagens entre si pelo D-Bus. Para implementá-lo foi criado um servidor que centraliza as mensagens enviadas pelos usuários em um só local através de um objeto de serviço que fica instanciado no SystemBus do sistema, um emissor que envia sinais pelo D-Bus que podem ser assinados pelo cliente para chamar uma função após um evento acontecer e um cliente gráfico. 
 <br>A comunicação funciona da seguinte maneira:<br>
 <ul>
-O servidor ao ser instanciado no D-Bus deixa expostos algumas funções para que o cliente ao recuperar sua instancia possa chamar, por exemplo a função que salva a mensagem enviada pelo cliente em uma lista que contém as mensagens enviadas durante a sessão, e emite um sinal pelo emissor que avisa todos os usuários que estão obeservando aquele evento de que há uma nova mensagem a ser exibida.
+O servidor ao ser instanciado no D-Bus deixa expostos algumas funções para que o cliente ao recuperar sua instancia possa chamar, por exemplo a função que salva a mensagem enviada pelo cliente em uma lista que contém as mensagens enviadas durante a sessão, e emite um sinal pelo emissor que avisa todos os usuários que estão observando aquele evento de que há uma nova mensagem a ser exibida.
 </ul>
-Na página de releases <a href="https://github.com/henriquealmeida39/Projeto-D-Bus-SOII/releases">https://github.com/henriquealmeida39/Projeto-D-Bus-SOII/releases</a> do projeto é possível baixar executáveis do projeto que não necssitam a instalação das dependencias usadas, mas é possivel compilar seus próprios utilizando o Pyinstaller por exemplo.
+Na página de releases <a href="https://github.com/henriquealmeida39/Projeto-D-Bus-SOII/releases">https://github.com/henriquealmeida39/Projeto-D-Bus-SOII/releases</a> do projeto é possível baixar executáveis do projeto que não necessitam a instalação das dependências usadas, mas é possivel compilar seus próprios utilizando o Pyinstaller por exemplo.
       
 
 ## Licença
