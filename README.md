@@ -15,7 +15,7 @@ Na página de releases <a href="https://github.com/henriquealmeida39/Projeto-D-B
 # Dificuldades econtradas durante o desenvolvimento
 Durante o desenvolvimento do projeto nosso grupo encontrou algumas dificuldades para implementar o wrapper padrão do dbus com o TKinter pois o mainloop do Tkinter não era aceito pelo dbus, então, foi necessário criar a aplicação em uma thread diferente do listener de eventos para conseguirmos rodar os dois em conjunto.
 
-Tivemos que aprender também como que um aplicativo que desejasse usar o SystemBus deveria expressar as permissões que o aplicativo teria pra poder ser instanciado, sua localidade no Ubuntu que foi a distribuição que realizamos o teste fica em /usr/share/dbus-1/system.d, podendo ser diferente depenendo do local escolhido por outras distribuições pelo o que vimos.      
+Tivemos que aprender também como que um aplicativo que desejasse usar o SystemBus deveria expressar as permissões que o aplicativo teria pra poder ser instanciado, sua localidade no Ubuntu que foi a distribuição que realizamos o teste fica em /usr/share/dbus-1/system.d, podendo ser diferente dependendo do local escolhido por outras distribuições pelo o que vimos.      
 
 ## Licença
 
